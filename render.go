@@ -34,7 +34,16 @@ func Init(fs embed.FS, patterns []string, p int) {
 }
 
 func Register(path string, f http.HandlerFunc) {
-	router.HandleFunc("/", f)
+	router.HandleFunc(path, f)
+}
+
+func ShowRoutes() {
+	router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+		tpl, _ := route.GetPathTemplate()
+		met, _ := route.GetMethods()
+		log.Println(tpl, met)
+		return nil
+	})
 }
 
 // Render renders tmpl embedded in layout.html using the provided data.

@@ -23,5 +23,6 @@ func main() {
 			Name string
 		}{Name: "SimpleWeb"})
 	})
+	simpleweb.ShowRoutes()
 	simpleweb.Run()
 }
