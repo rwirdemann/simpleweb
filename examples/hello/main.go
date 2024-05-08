@@ -12,6 +12,8 @@ import (
 var templates embed.FS
 
 func init() {
+	// Required Init call to tell SimpleWeb about its embedded templates, list
+	// of base templates (empty) and port
 	simpleweb.Init(templates, []string{}, 3030)
 }
 

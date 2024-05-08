@@ -1,6 +1,7 @@
 # SimpleWeb
 
-A very simple library for building serverside rendered web apps in Golang. Sample:
+A very simple library for building serverside rendered web apps in Golang.
+Example:
 
 ```go
 // Expects all HTML templates in $PROJECTROOT/templates
@@ -9,6 +10,8 @@ A very simple library for building serverside rendered web apps in Golang. Sampl
 var templates embed.FS
 
 func init() {
+    // Required Init call to tell SimpleWeb about its embedded templates, list 
+    // of base templates (empty) and port
     simpleweb.Init(templates, []string{}, 3030)
 }
 
