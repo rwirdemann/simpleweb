@@ -64,6 +64,14 @@ func RenderE(tmpl string, w http.ResponseWriter, data any) error {
 	return t.Execute(w, data)
 }
 
+func RenderPartialE(partial string, w http.ResponseWriter, data any) error {
+	t, err := template.ParseFS(templates, partial)
+	if err != nil {
+		return err
+	}
+	return t.Execute(w, data)
+}
+
 // RenderS renders tmpl embedded in layout.html and inserts title.
 func RenderS(tmpl string, w http.ResponseWriter, title string) {
 	if err := RenderE(tmpl, w, ViewData{
