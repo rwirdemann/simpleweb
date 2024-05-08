@@ -2,7 +2,10 @@ package simpleweb
 
 import (
 	"embed"
+	"fmt"
+	"github.com/gorilla/mux"
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -20,10 +23,18 @@ type ViewData struct {
 
 var templatePatterns []string
 var templates embed.FS
+var router *mux.Router
+var port int
 
-func Init(patterns []string, fs embed.FS) {
+func Init(fs embed.FS, patterns []string, p int) {
 	templatePatterns = patterns
 	templates = fs
+	router = mux.NewRouter()
+	port = p
+}
+
+func Register(path string, f http.HandlerFunc) {
+	router.HandleFunc("/", f)
 }
 
 // Render renders tmpl embedded in layout.html using the provided data.
@@ -75,4 +86,11 @@ func FormValue(r *http.Request, key string) (string, error) {
 		return "", err
 	}
 	return r.FormValue(key), nil
+}
+
+func Run() {
+	log.Printf("Listening on :%d...", port)
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
+		log.Fatal(err)
+	}
 }

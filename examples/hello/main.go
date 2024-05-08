@@ -2,27 +2,24 @@ package main
 
 import (
 	"embed"
-	"fmt"
-	"github.com/gorilla/mux"
 	"github.com/rwirdemann/simpleweb"
-	"log"
 	"net/http"
 )
 
+// Expects all HTML templates in $PROJECTROOT/templates
+//
 //go:embed all:templates
 var templates embed.FS
 
+func init() {
+	simpleweb.Init(templates, []string{}, 3030)
+}
+
 func main() {
-	simpleweb.Init([]string{}, templates)
-
-	router := mux.NewRouter()
-	router.HandleFunc("/", func(w http.ResponseWriter, request *http.Request) {
+	simpleweb.Register("/", func(w http.ResponseWriter, r *http.Request) {
 		simpleweb.Render("templates/index.html", w, struct {
-		}{})
+			Name string
+		}{Name: "SimpleWeb"})
 	})
-	log.Printf("Listening on :%d...", 3030)
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", 3030), router); err != nil {
-		log.Fatal(err)
-	}
-
+	simpleweb.Run()
 }
