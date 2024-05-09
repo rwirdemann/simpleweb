@@ -90,7 +90,15 @@ func RenderPartialE(partial string, w http.ResponseWriter, data any) error {
 	if err != nil {
 		return err
 	}
-	return t.Execute(w, data)
+	d := struct {
+		Flash Flash
+		Data  any
+	}{
+		Flash: flash,
+		Data:  data,
+	}
+	flash = Flash{}
+	return t.Execute(w, d)
 }
 
 // RedirectE redirects to url after setting Flash.error to err.
