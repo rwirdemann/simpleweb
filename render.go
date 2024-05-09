@@ -7,20 +7,8 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"path"
 )
-
-type Flash struct {
-	info  string
-	error string
-}
-
-func (f Flash) Info() string {
-	return f.info
-}
-
-func (f Flash) Error() string {
-	return f.error
-}
 
 // baseTemplates contains the list of base templates that are rendered with
 // every request.
@@ -33,8 +21,6 @@ var router *mux.Router
 
 // port of the web server
 var port int
-
-var flash = Flash{}
 
 // Init initializes the webapp by providing a collection of embedded html
 // templates fs, the names of baseTemplates that are rendered with every request
@@ -62,20 +48,12 @@ func ShowRoutes() {
 // RenderE renders tmpl using the provided data and returns. Returns any errors
 // that have occurred.
 func RenderE(tmpl string, w http.ResponseWriter, data any) error {
-	tmpls := append(baseTemplates, tmpl)
-	t, err := template.ParseFS(htmlTemplates, tmpls...)
+	files := append(baseTemplates, tmpl)
+	t, err := template.New(path.Base(files[0])).Funcs(warningHelper).ParseFS(htmlTemplates, files...)
 	if err != nil {
 		return err
 	}
-	d := struct {
-		Flash Flash
-		Data  any
-	}{
-		Flash: flash,
-		Data:  data,
-	}
-	flash = Flash{}
-	return t.Execute(w, d)
+	return t.Execute(w, data)
 }
 
 // Render renders tmpl using the provided data.
@@ -85,20 +63,13 @@ func Render(tmpl string, w http.ResponseWriter, data any) {
 	}
 }
 
+// RenderPartialE renders the partial without any surrounding templates.
 func RenderPartialE(partial string, w http.ResponseWriter, data any) error {
 	t, err := template.ParseFS(htmlTemplates, partial)
 	if err != nil {
 		return err
 	}
-	d := struct {
-		Flash Flash
-		Data  any
-	}{
-		Flash: flash,
-		Data:  data,
-	}
-	flash = Flash{}
-	return t.Execute(w, d)
+	return t.Execute(w, data)
 }
 
 // RedirectE redirects to url after setting Flash.error to err.
@@ -120,12 +91,4 @@ func Run() {
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func Info(s string) {
-	flash.info = s
-}
-
-func Error(s string) {
-	flash.error = s
 }

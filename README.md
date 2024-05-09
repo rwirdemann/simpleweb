@@ -35,6 +35,23 @@ All required artefacts like static or dynamic HTML pages are embedded. The
 compiled application consist of one single binary without any external
 dependency on the target machine.
 
+## Basic Templating
+
+The central rendering function `simpleweb.Render` expects a template name
+together with an anonymous data struct:
+
+```go
+simpleweb.Render("templates/index.html", w, struct {
+    Name string
+}{Name: "SimpleWeb"})
+```
+
+The data attributes are referred inside the template via a dor prefix:
+
+```html
+<h1>Hello, {{.Name}}</h1>
+```
+
 ## Limitations
 
 Since SimpleWeb uses go:embed it is required that all templates are accessible
