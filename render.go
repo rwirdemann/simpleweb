@@ -9,32 +9,45 @@ import (
 	"net/http"
 )
 
-// MsgSuccess holds a success messages that is shown on the index page.
-var MsgSuccess string
-
-// MsgError holds an error message that is shown on the index page.
-var MsgError string
-
-type ViewData struct {
-	Title   string
-	Message string
-	Error   string
+type Flash struct {
+	info  string
+	error string
 }
 
-var templatePatterns []string
-var templates embed.FS
+func (f Flash) Info() string {
+	return f.info
+}
+
+func (f Flash) Error() string {
+	return f.error
+}
+
+// baseTemplates contains the list of base templates that are rendered with
+// every request.
+var baseTemplates []string
+
+// htmlTemplates holds the embedded HTML templates
+var htmlTemplates embed.FS
+
 var router *mux.Router
+
+// port of the web server
 var port int
 
-func Init(fs embed.FS, patterns []string, p int) {
-	templatePatterns = patterns
-	templates = fs
+var flash = Flash{}
+
+// Init initializes the webapp by providing a collection of embedded html
+// templates fs, the names of baseTemplates that are rendered with every request
+// (e.g. layout.html) and the port p of the web server.
+func Init(ht embed.FS, bt []string, p int) {
+	baseTemplates = bt
+	htmlTemplates = ht
 	router = mux.NewRouter()
 	port = p
 }
 
-func Register(path string, f http.HandlerFunc) {
-	router.HandleFunc(path, f)
+func Register(path string, f http.HandlerFunc, methods ...string) {
+	router.HandleFunc(path, f).Methods(methods...)
 }
 
 func ShowRoutes() {
@@ -46,55 +59,44 @@ func ShowRoutes() {
 	})
 }
 
-// Render renders tmpl embedded in layout.html using the provided data.
+// RenderE renders tmpl using the provided data and returns. Returns any errors
+// that have occurred.
+func RenderE(tmpl string, w http.ResponseWriter, data any) error {
+	tmpls := append(baseTemplates, tmpl)
+	t, err := template.ParseFS(htmlTemplates, tmpls...)
+	if err != nil {
+		return err
+	}
+	d := struct {
+		Flash Flash
+		Data  any
+	}{
+		Flash: flash,
+		Data:  data,
+	}
+	flash = Flash{}
+	return t.Execute(w, d)
+}
+
+// Render renders tmpl using the provided data.
 func Render(tmpl string, w http.ResponseWriter, data any) {
 	if err := RenderE(tmpl, w, data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
-// RenderE works the same as Render except returning the error instead of
-// handling it.
-func RenderE(tmpl string, w http.ResponseWriter, data any) error {
-	tmpls := append(templatePatterns, tmpl)
-	t, err := template.ParseFS(templates, tmpls...)
-	if err != nil {
-		return err
-	}
-	return t.Execute(w, data)
-}
-
 func RenderPartialE(partial string, w http.ResponseWriter, data any) error {
-	t, err := template.ParseFS(templates, partial)
+	t, err := template.ParseFS(htmlTemplates, partial)
 	if err != nil {
 		return err
 	}
 	return t.Execute(w, data)
 }
 
-// RenderS renders tmpl embedded in layout.html and inserts title.
-func RenderS(tmpl string, w http.ResponseWriter, title string) {
-	if err := RenderE(tmpl, w, ViewData{
-		Title:   title,
-		Message: "",
-		Error:   "",
-	}); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-// RedirectE redirects to url after setting the global msgError to err.
+// RedirectE redirects to url after setting Flash.error to err.
 func RedirectE(w http.ResponseWriter, r *http.Request, url string, err error) {
-	MsgError = err.Error()
+	Error(err.Error())
 	http.Redirect(w, r, url, http.StatusSeeOther)
-}
-
-func ClearMessages() (string, string) {
-	e := MsgError
-	m := MsgSuccess
-	MsgError = ""
-	MsgSuccess = ""
-	return m, e
 }
 
 // FormValue returns the value of key for POST and PUT requests.
@@ -110,4 +112,12 @@ func Run() {
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func Info(s string) {
+	flash.info = s
+}
+
+func Error(s string) {
+	flash.error = s
 }
