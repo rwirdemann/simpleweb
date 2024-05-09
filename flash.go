@@ -57,7 +57,7 @@ var flashHelper = template.FuncMap{
 	"info": func() template.HTML {
 		s := ""
 		if len(flash.Info()) > 0 {
-			s = fmt.Sprintf("<p style=\"color: green\">%s</p>", flash.Info())
+			s = fmt.Sprintf("<div style=\"color: green\">%s</div>", flash.Info())
 			flash.ClearInfo()
 		}
 		return template.HTML(s)
