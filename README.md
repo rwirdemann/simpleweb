@@ -4,6 +4,12 @@ A very simple library for building serverside rendered web apps in Golang.
 Example:
 
 ```go
+import (
+    "embed"
+    "github.com/rwirdemann/simpleweb"
+    "net/http"
+)
+
 // Expects all HTML templates in $PROJECTROOT/templates
 //
 //go:embed all:templates
