@@ -53,7 +53,7 @@ func Warning(s string) {
 	flash.warning = s
 }
 
-var warningHelper = template.FuncMap{
+var flashHelper = template.FuncMap{
 	"info": func() template.HTML {
 		s := ""
 		if len(flash.Info()) > 0 {
@@ -61,6 +61,12 @@ var warningHelper = template.FuncMap{
 			flash.ClearInfo()
 		}
 		return template.HTML(s)
+	},
+	"hasInfo": func() bool {
+		if len(flash.Info()) > 0 {
+			return true
+		}
+		return false
 	},
 	"warning": func() template.HTML {
 		s := ""

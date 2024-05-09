@@ -49,7 +49,7 @@ func ShowRoutes() {
 // that have occurred.
 func RenderE(tmpl string, w http.ResponseWriter, data any) error {
 	files := append(baseTemplates, tmpl)
-	t, err := template.New(path.Base(files[0])).Funcs(warningHelper).ParseFS(htmlTemplates, files...)
+	t, err := template.New(path.Base(files[0])).Funcs(flashHelper).ParseFS(htmlTemplates, files...)
 	if err != nil {
 		return err
 	}
