@@ -1,7 +1,6 @@
 package simpleweb
 
 import (
-	"fmt"
 	"html/template"
 )
 
@@ -55,11 +54,8 @@ func Warning(s string) {
 
 var flashHelper = template.FuncMap{
 	"info": func() template.HTML {
-		s := ""
-		if len(flash.Info()) > 0 {
-			s = fmt.Sprintf("<div style=\"color: green\">%s</div>", flash.Info())
-			flash.ClearInfo()
-		}
+		s := flash.Info()
+		flash.ClearInfo()
 		return template.HTML(s)
 	},
 	"hasInfo": func() bool {
@@ -68,19 +64,26 @@ var flashHelper = template.FuncMap{
 		}
 		return false
 	},
-	"warning": func() template.HTML {
-		s := ""
+	"hasWarning": func() bool {
 		if len(flash.Warning()) > 0 {
-			s = fmt.Sprintf("<p style=\"color: orange\">%s</p>", flash.Warning())
-			flash.ClearWarning()
+			return true
 		}
+		return false
+	},
+	"warning": func() template.HTML {
+		s := flash.Warning()
+		flash.ClearWarning()
 		return template.HTML(s)
 	},
-	"error": func() template.HTML {
-		s := ""
+	"hasError": func() bool {
 		if len(flash.Error()) > 0 {
-			s = fmt.Sprintf("<p style=\"color: red\">%s</p>", flash.Error())
-			flash.ClearError()
+			return true
 		}
+		return false
+	},
+	"error": func() template.HTML {
+		s := flash.Error()
+		flash.ClearError()
 		return template.HTML(s)
-	}}
+	},
+}
