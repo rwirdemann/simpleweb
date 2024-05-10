@@ -19,13 +19,16 @@ func init() {
 
 func main() {
 	simpleweb.Register("/", func(w http.ResponseWriter, r *http.Request) {
-		simpleweb.Info("info message")
-		simpleweb.Error("error message")
-		simpleweb.Warning("warning message")
 		simpleweb.Render("templates/index.html", w, struct {
 			Name string
 		}{Name: "SimpleWeb"})
 	}, "GET")
+
+	simpleweb.Register("/info", func(w http.ResponseWriter, r *http.Request) {
+		simpleweb.Info("info message")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}, "GET")
+
 	simpleweb.ShowRoutes()
 	simpleweb.Run()
 }

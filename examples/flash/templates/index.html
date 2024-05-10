@@ -8,8 +8,10 @@
 </head>
 <body>
 <h1>Hello, {{.Name}}</h1>
-{{info}}
-{{error}}
-{{warning}}
+{{if hasInfo}}
+<p style="color: green">{{info}}</p>
+{{end}}
+<p style="color: red">{{error}}</p>
+<p style="color: orange">{{warning}}</p>
 </body>
 </html>

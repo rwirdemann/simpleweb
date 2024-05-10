@@ -46,10 +46,33 @@ simpleweb.Render("templates/index.html", w, struct {
 }{Name: "SimpleWeb"})
 ```
 
-The data attributes are referred inside the template via a dor prefix:
+The data attributes are referred inside the template via a dot prefix, e.g.:
 
 ```html
 <h1>Hello, {{.Name}}</h1>
+```
+
+## Flash messages
+
+Flash messages are one-time messages that are rendered by the handler that
+generates the final HTML and are deleted afterward:
+
+```go
+f := func(w http.ResponseWriter, r *http.Request) {
+    simpleweb.Info("info message")
+    simpleweb.Render("templates/index.html", w, struct {
+        Name string
+    }{Name: "SimpleWeb"})
+}
+```
+
+View helpers are provided for info, warning and error messages. See `hasInfo` and
+`info` for showing info messages:
+
+```html
+{{if hasInfo}}
+<p style="color: green">{{info}}</p>
+{{end}}
 ```
 
 ## Limitations
