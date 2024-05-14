@@ -20,7 +20,7 @@ var htmlTemplates embed.FS
 var router *mux.Router
 
 // port of the web server
-var port int
+var port = -1
 
 // Init initializes the webapp by providing a collection of embedded html
 // templates fs, the names of baseTemplates that are rendered with every request
@@ -33,10 +33,16 @@ func Init(ht embed.FS, bt []string, p int) {
 }
 
 func Register(path string, f http.HandlerFunc, methods ...string) {
+	if router == nil {
+		log.Fatal("simpleweb.Init needs to be called first")
+	}
 	router.HandleFunc(path, f).Methods(methods...)
 }
 
 func ShowRoutes() {
+	if router == nil {
+		log.Fatal("simpleweb.Init needs to be called first")
+	}
 	router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		tpl, _ := route.GetPathTemplate()
 		met, _ := route.GetMethods()
@@ -86,7 +92,11 @@ func FormValue(r *http.Request, key string) (string, error) {
 	return r.FormValue(key), nil
 }
 
+// Run starts the web server on the given port.
 func Run() {
+	if port == -1 {
+		log.Fatal("simpleweb.Init needs to be called first")
+	}
 	log.Printf("Listening on :%d...", port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), router); err != nil {
 		log.Fatal(err)

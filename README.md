@@ -52,6 +52,52 @@ The data attributes are referred inside the template via a dot prefix, e.g.:
 <h1>Hello, {{.Name}}</h1>
 ```
 
+## Layouting
+
+Avoid repetition of base HTML components by providing a base layout that is
+rendered with every request:
+
+```html
+<!-- templates/layout.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   ...
+</head>
+<body>
+<h1>Header</h1>
+{{template "_content" .}}
+<h1>Footer</h1>
+</body>
+</html>
+```
+
+In order to render `templates/layout.html` with every request it needs to be
+passed as baseTemplates-param to the initial Init-call:
+
+```go
+simpleweb.Init(templates, []string{"templates/layout.html"}, 3030)
+```
+
+The template-tag between the header and footer-elements is replaced by the
+content file passed to render:
+
+```go
+simpleweb.Render("templates/index.html", w, struct {
+    Name string
+}{Name: "SimpleWeb"})
+```
+
+It is also required that the content is wrapped inside a `defined` block, thus
+`templates/index.html` should have the following format:
+
+```html
+<!-- templates/index.html -->
+{{define "_content"}}
+<p>Hello, {{.Name}}</p>
+{{end}}
+```
+
 ## Flash messages
 
 Flash messages are one-time messages that are rendered by the handler that
