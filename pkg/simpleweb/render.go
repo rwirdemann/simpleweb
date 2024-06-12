@@ -29,7 +29,13 @@ func Init(ht embed.FS, bt []string, p int) {
 	baseTemplates = bt
 	htmlTemplates = ht
 	router = mux.NewRouter()
+
 	port = p
+}
+
+// Static registers path as root directory for serving static content like css, js or images.
+func Static(path string, fs embed.FS) {
+	router.PathPrefix(path).Handler(http.FileServer(http.FS(fs)))
 }
 
 func Register(path string, f http.HandlerFunc, methods ...string) {
