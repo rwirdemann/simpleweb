@@ -1,5 +1,5 @@
 module github.com/rwirdemann/simpleweb
 
-go 1.21
+go 1.23.2
 
 require github.com/gorilla/mux v1.8.1

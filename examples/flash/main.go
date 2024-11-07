@@ -2,7 +2,7 @@ package main
 
 import (
 	"embed"
-	"github.com/rwirdemann/simpleweb/pkg/simpleweb"
+	"github.com/rwirdemann/simpleweb"
 	"net/http"
 )
 
