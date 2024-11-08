@@ -26,7 +26,7 @@ func main() {
         simpleweb.Render("templates/index.html", w, struct {
             Name string
         }{Name: "SimpleWeb"})
-    })
+    }, "GET")
     simpleweb.Run()
 }
 ```
