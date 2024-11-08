@@ -90,6 +90,11 @@ func RedirectE(w http.ResponseWriter, r *http.Request, url string, err error) {
 	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
+// Redirect redirects to url.
+func Redirect(w http.ResponseWriter, r *http.Request, url string) {
+	http.Redirect(w, r, url, http.StatusSeeOther)
+}
+
 // FormValue returns the value of key for POST and PUT requests.
 func FormValue(r *http.Request, key string) (string, error) {
 	if err := r.ParseForm(); err != nil {
